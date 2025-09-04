@@ -1,20 +1,18 @@
 import "./globals.css";
-import { Playfair_Display } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
-export const metadata = {
-  title: "T.H.E Chauffeurs",
-  description: "Luxury chauffeur services in London",
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body className={playfair.className}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
