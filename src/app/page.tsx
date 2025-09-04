@@ -22,7 +22,7 @@ export default function Home() {
           Coming Soon...
         </h1>
         <p className="mt-4 max-w-xl text-center text-neutral-400 px-4">
-          Delivered By Excellence. Bookings open soon.
+          Premium, discreet and reliable chauffeuring across the UK. Bookings open soon.
         </p>
       </section>
 
