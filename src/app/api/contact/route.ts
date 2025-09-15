@@ -1,17 +1,11 @@
 // src/app/api/contact/route.ts
 import { Resend } from "resend";
 
-// Force a Node runtime on Vercel (serverless function)
-export const runtime = "nodejs";
+export const runtime = "nodejs"; // ensure serverless function on Vercel
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-type Body = {
-  name?: string;
-  email?: string;
-  message?: string;
-  _hp?: string; // honeypot
-};
+type Body = { name?: string; email?: string; message?: string; _hp?: string };
 
 function esc(s: string) {
   return s.replace(/[&<>"']/g, (c) =>
@@ -19,7 +13,7 @@ function esc(s: string) {
   );
 }
 
-// Simple health check: curl https://your-domain/api/contact
+// Health check: GET /api/contact
 export async function GET() {
   return Response.json({ ok: true, route: "/api/contact", methods: ["GET", "POST", "OPTIONS"] });
 }
@@ -42,14 +36,11 @@ export async function POST(req: Request) {
     }
 
     const { name = "", email = "", message = "", _hp = "" } = (await req.json()) as Body;
-
-    // Honeypot: bots fill hidden field -> silently succeed
-    if (_hp) return Response.json({ ok: true });
+    if (_hp) return Response.json({ ok: true }); // honeypot
 
     const to = process.env.CONTACT_TO_EMAIL || "info@thehighendchauffeurs.co.uk";
     let from = process.env.FROM_EMAIL || "website@thehighendchauffeurs.co.uk";
 
-    // If no API key configured, log and succeed so UI doesn’t block
     if (!process.env.RESEND_API_KEY) {
       console.log("Contact form (mock):", { name, email, message });
       return Response.json({ ok: true });
@@ -59,8 +50,7 @@ export async function POST(req: Request) {
       resend.emails.send({
         from: sender,
         to,
-        // NOTE: Node SDK uses camelCase replyTo (not reply_to)
-        replyTo: email ? [email] : undefined,
+        replyTo: email ? [email] : undefined, // Node SDK uses camelCase
         subject: `New enquiry — ${name || "Website"}`,
         html: `
           <h2>New website enquiry</h2>
@@ -71,10 +61,8 @@ export async function POST(req: Request) {
         text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
       });
 
-    // Try with configured sender first
     let { error } = await send(from);
 
-    // If your domain isn’t verified in Resend yet, retry with onboarding sender
     if (error && from !== "onboarding@resend.dev") {
       from = "onboarding@resend.dev";
       ({ error } = await send(from));
