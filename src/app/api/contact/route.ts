@@ -4,66 +4,120 @@ import { Resend } from "resend";
 export const runtime = "nodejs";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Escape HTML entities
 const esc = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]!));
+  s.replace(/[&<>"']/g, (c) => {
+    const map: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+    return map[c]!;
+  });
 
 // TEMP: keep true while diagnosing; flip to false later if you prefer a separate auto-reply
 const CC_VISITOR_ON_ADMIN = true;
 
+type DebugPayload = {
+  signature: string;
+  ccVisitorOnAdmin: boolean;
+  keyPresent: boolean;
+  from: string;
+  to: string;
+  steps: string[];
+  adminError?: string;
+  adminId?: string | null;
+  autoError?: string;
+  autoId?: string | null;
+};
+
 export async function GET() {
-  return Response.json({ ok: true, route: "/api/contact", signature: "v2-debug", methods: ["GET","POST","OPTIONS"] });
+  return Response.json({
+    ok: true,
+    route: "/api/contact",
+    signature: "v2-debug",
+    methods: ["GET", "POST", "OPTIONS"],
+  });
 }
-export async function OPTIONS() { return new Response(null, { status: 204 }); }
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204 });
+}
 
 export async function POST(req: NextRequest) {
-  const debug: any = {
+  const debug: DebugPayload = {
     signature: "v2-debug",
     ccVisitorOnAdmin: CC_VISITOR_ON_ADMIN,
     keyPresent: !!process.env.RESEND_API_KEY,
-    from: process.env.FROM_EMAIL || "notifications@thehighendchauffeurs.co.uk",
+    from:
+      process.env.FROM_EMAIL || "notifications@thehighendchauffeurs.co.uk",
     to: process.env.CONTACT_TO_EMAIL || "info@thehighendchauffeurs.co.uk",
-    steps: [] as string[],
+    steps: [],
   };
 
   try {
+    // Content-type guard
     if (!req.headers.get("content-type")?.includes("application/json")) {
       debug.steps.push("bad-content-type");
-      return Response.json({ ok:false, error:"Bad content type", debug }, { status:400 });
+      return Response.json(
+        { ok: false, error: "Bad content type", debug },
+        { status: 400 },
+      );
     }
 
     const body = await req.json();
-    if (body.companyWebsite) {
+
+    // Honeypot: if this is filled, it's probably a bot
+    if ((body as { companyWebsite?: string | null }).companyWebsite) {
       debug.steps.push("honeypot");
-      return Response.json({ ok:true, skipped:"honeypot", debug });
+      return Response.json({ ok: true, skipped: "honeypot", debug });
     }
 
-    const name    = String(body.name || "").trim().slice(0,80);
-    const email   = String(body.email || "").trim().slice(0,160);
-    const message = String(body.message || "").trim().slice(0,4000);
+    const name = String((body as { name?: string }).name || "")
+      .trim()
+      .slice(0, 80);
+    const email = String((body as { email?: string }).email || "")
+      .trim()
+      .slice(0, 160);
+    const message = String((body as { message?: string }).message || "")
+      .trim()
+      .slice(0, 4000);
 
     if (!name || !EMAIL.test(email) || message.length < 3) {
       debug.steps.push("invalid-fields");
-      return Response.json({ ok:false, error:"Invalid fields", debug }, { status:400 });
+      return Response.json(
+        { ok: false, error: "Invalid fields", debug },
+        { status: 400 },
+      );
     }
 
-    const TO   = debug.to;
+    const KEY = process.env.RESEND_API_KEY;
     const FROM = debug.from;
-    const KEY  = process.env.RESEND_API_KEY;
+    const TO = debug.to;
 
     if (!KEY) {
       debug.steps.push("no-key-return");
-      console.log("Contact (no RESEND_API_KEY):", { name, email, len: message.length });
-      return Response.json({ ok:true, debug });
+      console.log("Contact (no RESEND_API_KEY):", {
+        name,
+        email,
+        len: message.length,
+      });
+      return Response.json({ ok: true, debug });
     }
 
     const resend = new Resend(KEY);
     const subject = `New enquiry — ${name || "Website"}`;
+
     const html = `
       <h2>New website enquiry</h2>
       <p><b>Name:</b> ${esc(name)}</p>
       <p><b>Email:</b> ${esc(email)}</p>
-      <p><b>Message:</b><br/>${esc(message).replace(/\n/g,"<br/>")}</p>
+      <p><b>Message:</b><br/>${esc(message).replace(/\n/g, "<br/>")}</p>
     `;
+
     const text = `New website enquiry
 
 Name: ${name}
@@ -74,13 +128,18 @@ ${message}
 `;
 
     // 1) Admin email (optionally CC the visitor)
-    const toList = CC_VISITOR_ON_ADMIN ? [TO, email] : [TO];
+    const recipientList = CC_VISITOR_ON_ADMIN ? [TO, email] : [TO];
+
     debug.steps.push("admin-send-start");
-    console.log("ADMIN send ->", { from: FROM, to: toList, replyTo: email });
+    console.log("ADMIN send ->", {
+      from: FROM,
+      to: recipientList,
+      replyTo: email,
+    });
 
     const adminSend = await resend.emails.send({
       from: `T.H.E Chauffeurs <${FROM}>`,
-      to: toList,
+      to: recipientList,
       replyTo: [email],
       subject,
       html,
@@ -89,16 +148,24 @@ ${message}
 
     if (adminSend.error) {
       debug.steps.push("admin-send-error");
-      debug.adminError = String(adminSend.error?.message || adminSend.error);
+      debug.adminError = adminSend.error.message || "Unknown error";
       console.error("Resend admin error:", adminSend.error);
-      return Response.json({ ok:false, step:"admin", debug }, { status:502 });
+      return Response.json(
+        { ok: false, step: "admin", debug },
+        { status: 502 },
+      );
     }
-    debug.steps.push("admin-send-ok");
-    debug.adminId = (adminSend as any)?.data?.id ?? (adminSend as any)?.id ?? null;
 
+    debug.steps.push("admin-send-ok");
+    debug.adminId = adminSend.data?.id ?? null;
+
+    // If we're CC-ing the visitor on the admin email, no separate auto-reply
     if (CC_VISITOR_ON_ADMIN) {
       debug.steps.push("auto-reply-skipped-cc");
-      return Response.json({ ok:true, debug }, { status:200, headers:{ "Cache-Control":"no-store" } });
+      return Response.json(
+        { ok: true, debug },
+        { status: 200, headers: { "Cache-Control": "no-store" } },
+      );
     }
 
     // 2) Dedicated auto-reply (only when CC is off)
@@ -115,7 +182,7 @@ ${message}
           <p>Hi ${esc(name) || "there"},</p>
           <p>Thanks for contacting <b>T.H.E Chauffeurs</b>. We’ve received your message and will respond shortly.</p>
           <p><i>Your message:</i></p>
-          <blockquote>${esc(message).replace(/\n/g,"<br/>")}</blockquote>
+          <blockquote>${esc(message).replace(/\n/g, "<br/>")}</blockquote>
           <p>Best regards,<br/>T.H.E Chauffeurs</p>
         `,
         text: `Hi ${name || "there"},
@@ -132,18 +199,23 @@ T.H.E Chauffeurs
 
       if (auto.error) {
         debug.steps.push("auto-error");
-        debug.autoError = String(auto.error?.message || auto.error);
+        debug.autoError = auto.error.message || "Unknown error";
         console.error("Resend auto-reply error:", auto.error);
       } else {
         debug.steps.push("auto-ok");
-        debug.autoId = (auto as any)?.data?.id ?? (auto as any)?.id ?? null;
+        debug.autoId = auto.data?.id ?? null;
       }
     }
 
-    return Response.json({ ok:true, debug }, { status:200, headers:{ "Cache-Control":"no-store" } });
-
-  } catch (e) {
-    console.error("Contact API error:", e);
-    return Response.json({ ok:false, debug: { signature: "v2-debug", crashed: true } }, { status:500 });
+    return Response.json(
+      { ok: true, debug },
+      { status: 200, headers: { "Cache-Control": "no-store" } },
+    );
+  } catch (err) {
+    console.error("Contact API error:", err);
+    return Response.json(
+      { ok: false, debug: { signature: "v2-debug", crashed: true } },
+      { status: 500 },
+    );
   }
 }
