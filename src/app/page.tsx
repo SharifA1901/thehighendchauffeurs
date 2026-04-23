@@ -1,5 +1,6 @@
 import Image from "next/image";
 import ContactForm from "@/components/ContactForm";
+import JourneyEstimator from "@/components/JourneyEstimator";
 import logo from "../../public/images/TheHighEnd.jpeg";
 
 export default function Home() {
@@ -40,7 +41,7 @@ export default function Home() {
           </nav>
 
           <a
-            href="tel:+447000000000" // TODO: put your real number here
+            href="tel:+447000000000"
             className="inline-flex items-center rounded-full bg-[#C9A227] px-4 py-2 text-sm font-semibold text-black shadow-md hover:brightness-95 transition"
           >
             Call now
@@ -81,7 +82,7 @@ export default function Home() {
                 Get a quote
               </a>
               <a
-                href="tel:+447000000000" // TODO: real number
+                href="tel:+447000000000"
                 className="inline-flex items-center justify-center rounded-full border border-neutral-700 px-6 py-2.5 text-sm font-semibold text-neutral-100 hover:border-neutral-500 transition"
               >
                 Speak to a chauffeur
@@ -115,6 +116,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 🔥 JOURNEY ESTIMATOR */}
+      <JourneyEstimator />
 
       {/* SERVICES */}
       <section
@@ -161,20 +165,9 @@ export default function Home() {
         className="border-b border-neutral-900 bg-neutral-950 px-4 py-16 md:py-20"
       >
         <div className="mx-auto max-w-6xl">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-semibold text-white">
-                Our fleet
-              </h2>
-              <p className="mt-2 max-w-xl text-sm text-neutral-400">
-                New-shape luxury vehicles driven by experienced, discreet
-                chauffeurs. Cleaned and inspected before every journey.
-              </p>
-            </div>
-            <p className="text-xs text-neutral-500">
-              *Exact models available on request
-            </p>
-          </div>
+          <h2 className="text-2xl md:text-3xl font-semibold text-white">
+            Our fleet
+          </h2>
 
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             <FleetCard
@@ -206,167 +199,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* WHY US */}
-      <section
-        id="why-us"
-        className="border-b border-neutral-900 bg-black px-4 py-16 md:py-20"
-      >
-        <div className="mx-auto max-w-6xl grid gap-10 md:grid-cols-2">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-semibold text-white">
-              Why choose T.H.E Chauffeurs?
-            </h2>
-            <p className="mt-3 text-sm text-neutral-300">
-              We&apos;re building a service that feels more personal, more
-              considered and more reliable than app-only operators.
-            </p>
-
-            <ul className="mt-6 space-y-3 text-sm text-neutral-300">
-              <li className="flex gap-3">
-                <span className="mt-1 text-[#C9A227]">◆</span>
-                <div>
-                  <p className="font-medium text-white">
-                    Professional, vetted chauffeurs
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    Experienced drivers with excellent local knowledge and
-                    impeccable presentation.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-1 text-[#C9A227]">◆</span>
-                <div>
-                  <p className="font-medium text-white">
-                    Discreet & confidential
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    Ideal for high-profile, VIP and corporate clients who value
-                    privacy.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-1 text-[#C9A227]">◆</span>
-                <div>
-                  <p className="font-medium text-white">
-                    Transparent, pre-agreed pricing
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    Fixed quotes with no surge pricing or hidden extras.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-1 text-[#C9A227]">◆</span>
-                <div>
-                  <p className="font-medium text-white">
-                    Always on, always monitored
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    24/7 availability, with live flight and traffic monitoring
-                    for smooth arrivals.
-                  </p>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          <div className="rounded-3xl border border-neutral-800 bg-neutral-950 p-6 md:p-8">
-            <h3 className="text-sm font-semibold tracking-[0.3em] text-neutral-400 uppercase">
-              How it works
-            </h3>
-            <ol className="mt-5 space-y-4 text-sm text-neutral-200">
-              <li className="flex gap-3">
-                <span className="mt-1 h-6 w-6 shrink-0 rounded-full border border-neutral-600 text-xs flex items-center justify-center">
-                  1
-                </span>
-                <div>
-                  <p className="font-medium">Send your journey details</p>
-                  <p className="text-xs text-neutral-400">
-                    Use the contact form or call us with your pickup, drop-off,
-                    date and time.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-1 h-6 w-6 shrink-0 rounded-full border border-neutral-600 text-xs flex items-center justify-center">
-                  2
-                </span>
-                <div>
-                  <p className="font-medium">Receive a tailored quote</p>
-                  <p className="text-xs text-neutral-400">
-                    We&apos;ll confirm availability, recommend the right vehicle
-                    and provide a fixed price.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-1 h-6 w-6 shrink-0 rounded-full border border-neutral-600 text-xs flex items-center justify-center">
-                  3
-                </span>
-                <div>
-                  <p className="font-medium">Relax, we&apos;ll handle the rest</p>
-                  <p className="text-xs text-neutral-400">
-                    Your chauffeur arrives early, tracks your flight if
-                    applicable, and takes care of every detail.
-                  </p>
-                </div>
-              </li>
-            </ol>
-
-            <div className="mt-6 rounded-2xl bg-black/60 px-4 py-3 text-xs text-neutral-300 border border-neutral-800">
-              <p className="font-medium text-white mb-1">
-                Coverage: London &amp; UK-wide
-              </p>
-              <p>
-                Based in London with regular trips to Heathrow, Gatwick,
-                Stansted, Luton, City Airport and major UK cities.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CONTACT */}
-      <section
-        id="contact"
-        className="bg-neutral-950 px-4 py-16 md:py-20"
-      >
+      <section id="contact" className="bg-neutral-950 px-4 py-16 md:py-20">
         <div className="mx-auto max-w-6xl grid gap-10 md:grid-cols-[1.1fr,1fr]">
           <div>
             <h2 className="text-2xl md:text-3xl font-semibold text-white">
               Request a quote or availability
             </h2>
-            <p className="mt-2 text-sm text-neutral-300">
-              Tell us when and where you&apos;re travelling, and we&apos;ll
-              respond quickly with a personalised quote.
-            </p>
-
-            <div className="mt-6 space-y-3 text-sm text-neutral-300">
-              <p className="flex items-center gap-2">
-                <span className="text-[#C9A227]">☎</span>
-                <a
-                  href="tel:+447000000000" // TODO: real number
-                  className="hover:text-white underline-offset-4 hover:underline"
-                >
-                  +44 (0) 7000 000 000
-                </a>
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="text-[#C9A227]">@</span>
-                <a
-                  href="mailto:info@thehighendchauffeurs.co.uk"
-                  className="hover:text-white underline-offset-4 hover:underline"
-                >
-                  info@thehighendchauffeurs.co.uk
-                </a>
-              </p>
-              <p className="text-xs text-neutral-500">
-                If your journey is within the next 12 hours, we recommend
-                calling for the fastest response.
-              </p>
-            </div>
           </div>
 
           <div className="rounded-3xl border border-neutral-800 bg-black/70 p-6 md:p-7">
@@ -374,35 +213,17 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* FOOTER */}
-      <footer className="border-t border-neutral-900 bg-black px-4 py-6 text-xs text-neutral-500">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <p>
-            © {new Date().getFullYear()} T.H.E Chauffeurs. All rights reserved.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <span>Private hire &amp; chauffeur services</span>
-            <span className="hidden h-3 w-px bg-neutral-800 md:inline-block" />
-            <span>Fully insured · Professional drivers</span>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }
 
-type ServiceCardProps = {
-  title: string;
-  description: string;
-  icon: string;
-};
+/* SMALL COMPONENTS */
 
-function ServiceCard({ title, description, icon }: ServiceCardProps) {
+function ServiceCard({ title, description, icon }: any) {
   return (
-    <div className="rounded-2xl border border-neutral-800 bg-neutral-950/70 p-5 text-sm shadow-sm">
+    <div className="rounded-2xl border border-neutral-800 bg-neutral-950/70 p-5 text-sm">
       <div className="flex items-center gap-3">
-        <span className="text-xl">{icon}</span>
+        <span>{icon}</span>
         <h3 className="font-semibold text-white">{title}</h3>
       </div>
       <p className="mt-3 text-xs text-neutral-400">{description}</p>
@@ -410,32 +231,17 @@ function ServiceCard({ title, description, icon }: ServiceCardProps) {
   );
 }
 
-type FleetCardProps = {
-  label: string;
-  details: string[];
-  highlight?: boolean;
-};
-
-function FleetCard({ label, details, highlight }: FleetCardProps) {
+function FleetCard({ label, details, highlight }: any) {
   return (
     <div
-      className={[
-        "rounded-2xl border p-5 text-sm shadow-sm bg-neutral-950/80",
-        highlight
-          ? "border-[#C9A227]/70 shadow-[0_0_40px_rgba(201,162,39,0.20)]"
-          : "border-neutral-800",
-      ].join(" ")}
+      className={`rounded-2xl border p-5 ${
+        highlight ? "border-[#C9A227]" : "border-neutral-800"
+      }`}
     >
-      <p className="text-xs font-semibold tracking-[0.25em] text-neutral-400 uppercase">
-        {highlight ? "Recommended" : "Category"}
-      </p>
-      <h3 className="mt-2 text-lg font-semibold text-white">{label}</h3>
-      <ul className="mt-4 space-y-2 text-xs text-neutral-300">
-        {details.map((d) => (
-          <li key={d} className="flex gap-2">
-            <span className="mt-0.5 text-[#C9A227]">•</span>
-            <span>{d}</span>
-          </li>
+      <h3 className="text-lg font-semibold text-white">{label}</h3>
+      <ul className="mt-4 text-sm text-neutral-300 space-y-2">
+        {details.map((d: string) => (
+          <li key={d}>• {d}</li>
         ))}
       </ul>
     </div>
